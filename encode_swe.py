@@ -27,6 +27,15 @@ class SWEEncoder_ja:
         # Clean text
         def check_synbol(x):
             '''Function to check if the character is a symbol'''
+            e = x.encode()
+            if len(x) == 1 and len(e) == 1:
+                c = (int(e[0])<<8)+int(e[1])
+                if (c >=0xc2a1 and c <= 0xc2bf) or \
+                    (c >= 0xc780 and c <= 0xc783) or \
+                    (c >= 0xcab9 and c <= 0xcbbf) or \
+                    (c >= 0xcc80 and c <= 0xcba2):
+                        return True
+            return False
 
         def check_u2e(x):
             '''Function to check if the character is a 3-byte symbol'''
@@ -68,6 +77,4 @@ class SWEEncoder_ja:
                         result.append(self.swe['<|byte%d|>'%i])
                     pos = end
         return result
-
-
 
