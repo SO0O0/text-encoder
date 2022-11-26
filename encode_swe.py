@@ -39,6 +39,13 @@ class SWEEncoder_ja:
 
         def check_u2e(x):
             '''Function to check if the character is a 3-byte symbol'''
+            e = x.encode()
+            if len(x) == 1 and len(e) == 3:
+                # Create character code
+                c = (int(e[0])<<16)+(int(e[1])<<8)+int(e[2])
+                if c >= 0xe28080 and c <= 0xe2b07f:
+                    return True
+            return False
 
         pos = 0
         result = []
