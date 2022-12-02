@@ -44,7 +44,21 @@ class SWEEncoder_ja:
         Find the longest matching word and create a sequence of tokens
         with tokens with that word written by the list
         '''
-        # Clean text
+        # Text preprocessing
+        text = text.replace(' ', '<SP>')
+        text = text.replace('  ', '<SP>')
+        text = text.replace('\r\n', '<BR>')
+        text = text.replace('\n', '<BR>')
+        text = text.replace('\r', '<BR>')
+        text = text.replace('\t', '<TAB>')
+        text = text.replace('—', 'ー')
+        text = text.replace('−', 'ー')
+        for k,v in self.emoji['emoji'].items():
+            if k in text:
+                text = text.replace(k, v)
+        if clean:
+            text = text = self.clean_text(text)
+
         def check_synbol(x):
             '''Function to check if the character is a symbol'''
             e = x.encode()
