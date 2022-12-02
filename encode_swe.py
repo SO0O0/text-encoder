@@ -84,7 +84,7 @@ class SWEEncoder_ja:
         pos = 0
         result = []
         while pos < len(text):
-            '''until the end of the text'''
+            '''Until the end of the text'''
             # Viewing position in the text
             end = min(len(text), pos+self.maxlen+1) if text[pos] == '<' else pos+3
             # Matching candidate tokens
@@ -118,4 +118,49 @@ class SWEEncoder_ja:
                         result.append(self.swe['<|byte%d|>'%i])
                     pos = end
         return result
+
+    def decode(self, tokens, breakline='\n'):
+        '''Convert tokens to text'''
+        words = []
+        byte_tokens = []
+        for i in tokens:
+            # Obtain character string representation from token list
+            word = self.bpe[i][0]
+        if word[:6] == '<|byte' and word[-2:] == '|>':
+            # Encoded in a byte sequence
+            byte_tokens.append(int(word[6:-2]))
+        else:
+            # If put the byte sequence back together
+            if len(byte_tokens) > 0:
+                words.append(bytearray(byte_tokens).decode('utf-8' , errors='replace'))
+                byte_tokens = []
+            # Undo string from token
+            if word[:7] == '<|emoji' and word[-2:] == '|>':
+                # Emoji
+                words.append(self.emoji['emoji_inv'][word])
+            elif word == '<BR>':
+                # Line break
+                words.append(breakline)
+            elif word == '<SP>':
+                # Space
+                words.append(' ')
+            elif word == '<TAB>':
+                # Tab
+                words.append('\t')
+            elif word == '<BLOCK>':
+                #  Block
+                words.append('▀')
+            elif word == '<KIGOU>':
+                # Kigou
+                words.append('ǀ')
+            elif word == '<U2000U2BFF>':
+                # 3-byte symbol
+                words.append('‖')
+            else:
+                words.append(word)
+        if len(byte_tokens) > 0:
+            # Undo the remaining byte sequence
+            words.append(bytearray(byte_tokens).decode('utf-8' , errors='replace'))
+        text = ''.join(words)
+        return text
 
